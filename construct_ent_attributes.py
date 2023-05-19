@@ -68,7 +68,7 @@ def main():
     if args.dataset == 'WN':
         path = './wordnet-mlj12/wordnet-mlj12-%s.txt'
     elif args.dataset == 'FB15k':
-        path = './knowledge_graph/datasets/Freebase/FB15k_Entity_Types/FB15k_Entity_Type_%s.txt'
+        path = './fb15k/FB15k_Entity_Type_%s.txt'
     else:
         raise Exception("Argument 'dataset' can only be WN or FB15k.")
 
