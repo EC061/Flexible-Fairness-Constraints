@@ -431,9 +431,9 @@ def parse_args():
     args = parser.parse_args()
     args.use_cuda = torch.cuda.is_available()
 
-    if args.dataset == 'WN' or args.dataset == 'FB15k':
-        path = './data/' + args.dataset + '-%s.pkl'
-
+    if args.dataset == "Amazon":
+        
+        path = "../Graph-Mining-Fairness-Data/dataset/Amazon-2/%s_df.pkl"
         args.num_ent = len(json.load(open('./data/%s-ent_to_idx.json' % args.dataset, 'r')))
         args.num_rel = len(json.load(open('./data/%s-rel_to_idx.json' % args.dataset, 'r')))
         args.data_path = path
@@ -553,9 +553,9 @@ def main(args):
         valid_set = KBDataset(S['val_data'], attr_data)
         test_set = KBDataset(S['test_data'], attr_data)
     else:
-        train_set = KBDataset(args.data_path % 'train', args.prefetch_to_gpu)
-        valid_set = KBDataset(args.data_path % 'valid')
-        test_set = KBDataset(args.data_path % 'test')
+        train_set = KBDataset(args.data_path % 'training', args.prefetch_to_gpu)
+        valid_set = KBDataset(args.data_path % 'valiing')
+        test_set = KBDataset(args.data_path % 'testing')
         print('50 Most Common Attributes')
 
     if args.prefetch_to_gpu:

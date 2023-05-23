@@ -444,7 +444,7 @@ def train_gcmc(data_loader,counter,args,train_hash,modelD,optimizerD,\
                         masked_optimizer_fairD_set):
                     if fairD_disc is not None and fair_optim is not None:
                         fair_optim.zero_grad()
-                        l_penalty_2 += fairD_disc(filter_l_emb.detach(),\
+                        l_penalty_2 = l_penalty_2 + fairD_disc(filter_l_emb.detach(),\
                                 p_batch[:,0],True)
                         if not args.use_cross_entropy:
                             fairD_loss = -1*(1 - l_penalty_2)
@@ -502,6 +502,7 @@ def train_gcmc(data_loader,counter,args,train_hash,modelD,optimizerD,\
 def train(data_loader, counter, args, train_hash, modelD, optimizerD,\
          fairD_set, optimizer_fairD_set, filter_set, experiment):
 
+    torch.autograd.set_detect_anomaly(True)
     ''' This Function Does Training based on NCE Sampling, for GCMC switch to
     another train function which does not need NCE Sampling'''
     if args.use_gcmc:
