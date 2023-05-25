@@ -3,3 +3,6 @@
 ./data/*
 ./fb15k/*
 ./knowledge_graph/*
+./ml-1m/*
+./results/*
+./data/*
