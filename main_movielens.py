@@ -48,7 +48,7 @@ def parse_args():
     parser.add_argument('--remove_old_run', action='store_true', help="remove old run")
     parser.add_argument('--use_cross_entropy', action='store_true', help="DemPar Discriminators Loss as CE")
     parser.add_argument('--data_dir', type=str, default='./data/', help="Contains Pickle files")
-    parser.add_argument('--api_key', type=str, default="ikBnLJ4OCtQQA3AyOqPHvaThG", help="Api key for Comet ml")
+    parser.add_argument('--api_key', type=str, default="vTUtP5Z2eLUpYSo9rFrlAUoQc", help="Api key for Comet ml")
     parser.add_argument('--project_name', type=str, default="adversarial-fair-gcn", help="Comet project_name")
     parser.add_argument('--workspace', type=str, default="ec061", help="Comet Workspace")
     parser.add_argument('--D_steps', type=int, default=10, help='Number of D steps')

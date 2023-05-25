@@ -391,7 +391,7 @@ def parse_args():
     parser.add_argument('--num_classifier_epochs', type=int, default=50, help='Number of training epochs (default: 500)')
     parser.add_argument('--save_dir', type=str, default='./results/', help="output path")
     parser.add_argument('--do_log', action='store_true', help="whether to log to csv")
-    parser.add_argument('--api_key', type=str, default="ikBnLJ4OCtQQA3AyOqPHvaThG", help="Api key for Comet ml")
+    parser.add_argument('--api_key', type=str, default="vTUtP5Z2eLUpYSo9rFrlAUoQc", help="Api key for Comet ml")
     parser.add_argument('--project_name', type=str, default="adversarial-fair-gcn", help="Comet project_name")
     parser.add_argument('--workspace', type=str, default="ec061", help="Comet Workspace")
     parser.add_argument('--load_transD', action='store_true', help="Load TransD")
@@ -546,7 +546,6 @@ def freeze_model(model):
         params.requires_grad = False
 
 def main(args):
-    ipdb.set_trace()
     if args.dataset in ('FB15k-237', 'kinship', 'nations', 'umls', 'WN18RR', 'YAGO3-10'):
         S = joblib.load(args.data_path)
         train_set = KBDataset(S['train_data'], args.prefetch_to_gpu)

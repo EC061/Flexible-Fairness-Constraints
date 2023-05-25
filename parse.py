@@ -61,7 +61,7 @@ def main():
     train_data = parse_file(train_file)
     valid_data = parse_file(valid_file)
     test_data = parse_file(test_file)
-
+    ipdb.set_trace()
     ent_to_idx, rel_to_idx = get_idx_dicts(train_data + valid_data + test_data)
 
     train_set = transform_data(train_data, ent_to_idx, rel_to_idx)

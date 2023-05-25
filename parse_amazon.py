@@ -7,7 +7,6 @@ import json
 import pickle
 import argparse
 import ipdb
-import numpy as np
 
 if 'data' not in os.listdir('./'):
     os.mkdir('./data')
@@ -47,12 +46,13 @@ def main():
     train_file = pickle.load(open(path % 'training', 'rb'))
     valid_file = pickle.load(open(path % 'valiing', 'rb'))
     test_file = pickle.load(open(path % 'testing', 'rb'))
+    columns = train_file.columns.tolist()
 
-    train_data = [np.array(row) for row in train_file.values]
-    valid_data = [np.array(row) for row in valid_file.values]
-    test_data = [np.array(row) for row in test_file.values]
+    
+    train_data = train_file[[columns[0], columns[2], columns[1]]].values.tolist()
+    valid_data = valid_file[[columns[0], columns[2], columns[1]]].values.tolist()
+    test_data = test_file[[columns[0], columns[2], columns[1]]].values.tolist()
 
-    ipdb.set_trace()
     ent_to_idx, rel_to_idx = get_idx_dicts(train_data + valid_data + test_data)
 
     train_set = transform_data(train_data, ent_to_idx, rel_to_idx)
