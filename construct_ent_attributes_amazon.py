@@ -4,21 +4,11 @@ import pickle
 import argparse
 import numpy as np
 from collections import Counter
+import random
 import ipdb
 
 if 'data' not in os.listdir('./'):
     os.mkdir('./data')
-
-def parse_line(line):
-    lhs, attr = line.strip('\n').split('\t')
-    return lhs, attr
-
-def parse_file(lines):
-    parsed = []
-    for line in lines:
-        lhs, attr = parse_line(line)
-        parsed += [[lhs, attr]]
-    return parsed
 
 def get_idx_dicts(data):
     ent_set, attr_set = set(), set()
@@ -63,22 +53,26 @@ def transform_data(data, ent_to_idx, attr_to_idx, \
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', help="Choose to parse WN or FB15k", default="FB15k")
+    parser.add_argument('--dataset', help="Choose to parse WN or FB15k", default="Amazon")
     args = parser.parse_args()
     if args.dataset == 'Amazon':
-        path = "../Graph-Mining-Fairness-Data/dataset/" + args.dataset + "/%s_df.pkl"
+        path = "../Graph-Mining-Fairness-Data/dataset/Amazon-2/%s.pkl"
     else:
         raise Exception("Argument 'dataset' can only be WN or FB15k.")
-
-    train_file = open(path % 'train', 'r').readlines()
-    valid_file = open(path % 'valid', 'r').readlines()
-    test_file = open(path % 'test', 'r').readlines()
-    train_data = parse_file(train_file)
-    valid_data = parse_file(valid_file)
-    test_data = parse_file(test_file)
+    
+    data = pickle.load(open(path % 'item_genre_dict', 'rb'))
+    dlists = [[key, val.pop()] for key, val in data.items()]
+    random.seed(42)
+    random.shuffle(dlists)
+    n = len(dlists)
+    idx1 = round(n * 0.1)
+    idx2 = round(n * 0.2)
+    train_data = dlists[:idx1]
+    valid_data = dlists[idx1:idx2]
+    test_data = dlists[idx2:]
     ent_to_idx, attr_to_idx = get_idx_dicts(train_data + valid_data + test_data)
 
-    ipdb.set_trace()
+    
     ''' Count attributes '''
     train_attr_count = count_attributes(train_data, attr_to_idx)
     valid_attr_count = count_attributes(valid_data, attr_to_idx)

@@ -387,11 +387,11 @@ def parse_args():
     parser.add_argument('--use_trained_filters', type=bool, default=False, help='Sample a binary mask for discriminators to use')
     parser.add_argument('--test_new_disc', action='store_true', help="Load TransD")
     parser.add_argument('--sample_mask', type=bool, default=False, help='Sample a binary mask for discriminators to use')
-    parser.add_argument('--dataset', type=str, default='FB15k', help='Knowledge base version (default: WN)')
+    parser.add_argument('--dataset', type=str, default='', help='Knowledge base version (default: WN)')
     parser.add_argument('--num_classifier_epochs', type=int, default=50, help='Number of training epochs (default: 500)')
     parser.add_argument('--save_dir', type=str, default='./results/', help="output path")
     parser.add_argument('--do_log', action='store_true', help="whether to log to csv")
-    parser.add_argument('--api_key', type=str, default="ikBnLJ4OCtQQA3AyOqPHvaThG", help="Api key for Comet ml")
+    parser.add_argument('--api_key', type=str, default="vTUtP5Z2eLUpYSo9rFrlAUoQc", help="Api key for Comet ml")
     parser.add_argument('--project_name', type=str, default="adversarial-fair-gcn", help="Comet project_name")
     parser.add_argument('--workspace', type=str, default="ec061", help="Comet Workspace")
     parser.add_argument('--load_transD', action='store_true', help="Load TransD")
@@ -432,13 +432,13 @@ def parse_args():
     args.use_cuda = torch.cuda.is_available()
 
     if args.dataset == "Amazon":
-        
-        path = "../Graph-Mining-Fairness-Data/dataset/Amazon-2/%s_df.pkl"
-        args.num_ent = len(json.load(open('./data/%s-ent_to_idx.json' % args.dataset, 'r')))
-        args.num_rel = len(json.load(open('./data/%s-rel_to_idx.json' % args.dataset, 'r')))
+        base = "Amazon-2"
+        path = './data/' + base + '-%s.pkl'
+        args.num_ent = len(json.load(open('./data/%s-ent_to_idx.json' % base, 'r')))
+        args.num_rel = len(json.load(open('./data/%s-rel_to_idx.json' % base, 'r')))
         args.data_path = path
     else:
-        raise Exception("Argument 'dataset' can only be 'WN' or 'FB15k'.")
+        raise Exception("Argument 'dataset' can only be 'Amazon'")
 
     # if args.use_attr:
         # args.attr_mat = os.path.join(args.data_dir,\
@@ -457,22 +457,22 @@ def parse_args():
         # args.attr_to_idx = None
         # args.reindex_attr_idx = None
     args.attr_mat = os.path.join(args.data_dir,\
-            'Attributes_FB15k-train.pkl')
+            'Attributes_%s-train.pkl' % args.dataset)
     args.ent_to_idx = os.path.join(args.data_dir,\
-            'Attributes_FB15k-ent_to_idx.json')
+            'Attributes_%s-ent_to_idx.json' % args.dataset)
     args.attr_to_idx = os.path.join(args.data_dir,\
-            'Attributes_FB15k-attr_to_idx.json')
+            'Attributes_%s-attr_to_idx.json' % args.dataset)
     args.reindex_attr_idx = os.path.join(args.data_dir,\
-            'Attributes_FB15k-reindex_attr_to_idx.json')
+            'Attributes_%s-reindex_attr_to_idx.json' % args.dataset)
     args.attr_count = os.path.join(args.data_dir,\
-            'Attributes_FB15k-attr_count.json')
+            'Attributes_%s-attr_count.json' % args.dataset)
     args.fair_att_0 = 0
     args.fair_att_1 = 1
     args.fair_att_2 = 2
-    args.saved_path = os.path.join(args.save_dir,'Updated_Paper_FB15kD_final.pts')
+    args.saved_path = os.path.join(args.save_dir,'Updated_Paper_%s_final.pts' % args.dataset)
     # args.fair_att = np.random.choice(1,1) # Pick a random sensitive attribute
     args.outname_base = os.path.join(args.save_dir,\
-            args.namestr+'FB_results')
+            args.namestr+'%s_results'% args.dataset)
 
     args.filter_0_saved_path = args.outname_base + 'Filter_0.pts'
     args.filter_1_saved_path = args.outname_base + 'Filter_1.pts'
@@ -546,16 +546,15 @@ def freeze_model(model):
         params.requires_grad = False
 
 def main(args):
-    ipdb.set_trace()
     if args.dataset in ('FB15k-237', 'kinship', 'nations', 'umls', 'WN18RR', 'YAGO3-10'):
         S = joblib.load(args.data_path)
         train_set = KBDataset(S['train_data'], args.prefetch_to_gpu)
         valid_set = KBDataset(S['val_data'], attr_data)
         test_set = KBDataset(S['test_data'], attr_data)
     else:
-        train_set = KBDataset(args.data_path % 'training', args.prefetch_to_gpu)
-        valid_set = KBDataset(args.data_path % 'valiing')
-        test_set = KBDataset(args.data_path % 'testing')
+        train_set = KBDataset(args.data_path % 'train', args.prefetch_to_gpu)
+        valid_set = KBDataset(args.data_path % 'valid')
+        test_set = KBDataset(args.data_path % 'test')
         print('50 Most Common Attributes')
 
     if args.prefetch_to_gpu:
@@ -600,7 +599,7 @@ def main(args):
                 args.reindex_attr_idx,args.attr_count]
         fairD_0 = FBDemParDisc(args.embed_dim,args.fair_att_0,'0',attr_data,args.use_cross_entropy)
         fairD_1 = FBDemParDisc(args.embed_dim,args.fair_att_1,'1',attr_data,args.use_cross_entropy)
-        fairD_2 = FBDemParDisc(args.embed_dim,args.fair_att_2,'2',attr_data,args.use_cross_entropy)
+        # fairD_2 = FBDemParDisc(args.embed_dim,args.fair_att_2,'2',attr_data,args.use_cross_entropy)
         most_common_attr = [print(fairD_0.inv_attr_map[int(k)]) for k in \
                 fairD_0.reindex_to_idx.keys()]
 
@@ -608,30 +607,31 @@ def main(args):
         if args.sample_mask:
             filter_0 = AttributeFilter(args.embed_dim,attribute='0')
             filter_1 = AttributeFilter(args.embed_dim,attribute='1')
-            filter_2 = AttributeFilter(args.embed_dim,attribute='2')
+            # filter_2 = AttributeFilter(args.embed_dim,attribute='2')
             filter_0.cuda()
             filter_1.cuda()
-            filter_2.cuda()
+            # filter_2.cuda()
             optimizer_fairD_0 = optimizer(fairD_0.parameters(),'adam', args.lr)
             optimizer_fairD_1 = optimizer(fairD_1.parameters(),'adam',args.lr)
-            optimizer_fairD_2 = optimizer(fairD_2.parameters(),'adam', args.lr)
+            # optimizer_fairD_2 = optimizer(fairD_2.parameters(),'adam', args.lr)
         elif args.use_trained_filters and not args.sample_mask:
             filter_0 = AttributeFilter(args.embed_dim,attribute='0')
             filter_1 = AttributeFilter(args.embed_dim,attribute='1')
-            filter_2 = AttributeFilter(args.embed_dim,attribute='2')
+            # filter_2 = AttributeFilter(args.embed_dim,attribute='2')
             filter_0.cuda()
             filter_1.cuda()
-            filter_2.cuda()
+            # filter_2.cuda()
         else:
             optimizer_fairD_0 = optimizer(fairD_0.parameters(),'adam', args.lr)
             optimizer_fairD_1 = optimizer(fairD_1.parameters(),'adam',args.lr)
-            optimizer_fairD_2 = optimizer(fairD_2.parameters(),'adam', args.lr)
-            filter_0, filter_1, filter_2 = None, None, None
+            # optimizer_fairD_2 = optimizer(fairD_2.parameters(),'adam', args.lr)
+            # filter_0, filter_1, filter_2 = None, None, None
+            filter_0, filter_1 = None, None
 
         if args.use_cuda:
             fairD_0.cuda()
             fairD_1.cuda()
-            fairD_2.cuda()
+            # fairD_2.cuda()
 
     elif args.use_1_attr:
         attr_data = [args.attr_mat,args.ent_to_idx,args.attr_to_idx,\
@@ -647,13 +647,13 @@ def main(args):
                use_cross_entropy=args.use_cross_entropy)
         optimizer_fairD_0 = optimizer(fairD_0.parameters(),'adam', args.lr)
         fairD_0.cuda()
-    elif args.use_2_attr:
-        attr_data = [args.attr_mat,args.ent_to_idx,args.attr_to_idx,\
-                args.reindex_attr_idx,args.attr_count]
-        fairD_2 = FBDemParDisc(args.embed_dim,args.fair_att_2,'2',attr_data,\
-                use_cross_entropy=args.use_cross_entropy)
-        optimizer_fairD_2 = optimizer(fairD_2.parameters(),'adam', args.lr)
-        fairD_2.cuda()
+    # elif args.use_2_attr:
+    #     attr_data = [args.attr_mat,args.ent_to_idx,args.attr_to_idx,\
+    #             args.reindex_attr_idx,args.attr_count]
+    #     fairD_2 = FBDemParDisc(args.embed_dim,args.fair_att_2,'2',attr_data,\
+    #             use_cross_entropy=args.use_cross_entropy)
+    #     optimizer_fairD_2 = optimizer(fairD_2.parameters(),'adam', args.lr)
+    #     fairD_2.cuda()
     # if args.use_attr:
         # ''' Hard Coded to the most common attribute for now '''
         # attr_data = [args.attr_mat,args.ent_to_idx,args.attr_to_idx,\
@@ -668,16 +668,15 @@ def main(args):
     D_monitor = OrderedDict()
     test_val_monitor = OrderedDict()
     ''' Create Sets '''
-    fairD_set = [fairD_0,fairD_1,fairD_2]
-    filter_set = [filter_0,filter_1,filter_2]
-    optimizer_fairD_set = [optimizer_fairD_0, optimizer_fairD_1,\
-            optimizer_fairD_2]
+    fairD_set = [fairD_0,fairD_1]
+    filter_set = [filter_0,filter_1]
+    optimizer_fairD_set = [optimizer_fairD_0, optimizer_fairD_1]
 
     if args.sample_mask and not args.use_trained_filters:
         optimizerD = optimizer(list(modelD.parameters()) + \
                 list(filter_0.parameters()) + \
-                list(filter_1.parameters()) + \
-                list(filter_2.parameters()), 'adam', args.lr)
+                list(filter_1.parameters()), 'adam', args.lr)
+                # list(filter_2.parameters()), 'adam', args.lr)
     else:
         optimizerD = optimizer(modelD.parameters(), 'adam', args.lr)
     schedulerD = lr_scheduler(optimizerD, args.decay_lr, args.num_epochs)

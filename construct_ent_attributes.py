@@ -80,7 +80,7 @@ def main():
     test_data = parse_file(test_file)
     ent_to_idx, attr_to_idx = get_idx_dicts(train_data + valid_data + test_data)
 
-    # ipdb.set_trace()
+    ipdb.set_trace()
     ''' Count attributes '''
     train_attr_count = count_attributes(train_data, attr_to_idx)
     valid_attr_count = count_attributes(valid_data, attr_to_idx)
